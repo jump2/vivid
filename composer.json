@@ -1,0 +1,15 @@
+{
+    "name": "vivid/framework",
+    "description": "The vivid framework",
+    "keywords": [
+        "framework",
+        "vivid"
+    ],
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "aaron woo",
+            "email": "707230686@qq.com"
+        }
+    ]
+}
