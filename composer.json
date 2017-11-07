@@ -11,5 +11,9 @@
             "name": "aaron woo",
             "email": "707230686@qq.com"
         }
-    ]
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {"Vivid\\": ""}
+    }
 }
