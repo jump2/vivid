@@ -12,6 +12,9 @@
             "email": "707230686@qq.com"
         }
     ],
+    "require": {
+        "symfony/console": "~3.2"
+    },
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {"Vivid\\": ""}
