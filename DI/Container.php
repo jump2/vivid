@@ -5,6 +5,7 @@ namespace Vivid\DI;
 use Vivid\Base\Object;
 
 use Vivid\Base\Exception\InvalidConfigException;
+use Vivid\DI\Exception\NotInstantiableException;
 
 class Container extends Object
 {
@@ -112,7 +113,25 @@ class Container extends Object
     }
 
     public function build($class, $params, $config)
-    {}
+    {
+        list($reflection, $dependencies) = $this->getDependencies($class, $params);
+
+        if (empty($config)) {
+            return $reflection->newInstanceArgs($dependencies);
+        }
+
+        if (!empty($dependencies) && $reflection->implementsInterface('Vivid\Base\Configurable')) {
+            // set $config as the last parameter (existing one will be overwritten)
+            $dependencies[count($dependencies) - 1] = $config;
+            return $reflection->newInstanceArgs($dependencies);
+        } else {
+            $object = $reflection->newInstanceArgs($dependencies);
+            foreach ($config as $name => $value) {
+                $object->$name = $value;
+            }
+            return $object;
+        }
+    }
 
     public function get($class, $params = [], $config = [])
     {
@@ -150,6 +169,44 @@ class Container extends Object
         }
 
         return $object;
+    }
+
+    protected function getDependencies($class, $params)
+    {
+        if (isset($this->_reflections[$class])) {
+            return [$this->_reflections[$class], $this->_dependencies[$class]];
+        }
+
+        $dependencies = [];
+        foreach($params as $index => $param) {
+            $dependencies[$index] = $param;
+        }
+        $reflection = new ReflectionClass($class);
+        if (!$reflection->isInstantiable()) {
+            throw new NotInstantiableException($reflection->name);
+        }
+
+        $constructor = $reflection->getConstructor();
+        if ($constructor !== null) {
+            foreach ($constructor->getParameters() as $i => $param) {
+                if($i <= $index) continue;
+                if ($param->isDefaultValueAvailable()) {
+                    $dependencies[] = $param->getDefaultValue();
+                } else {
+                    $c = $param->getClass();
+                    if($c === null) {
+                        throw new InvalidConfigException("Missing required parameter \"$param->getName()\" when instantiating \"$class\".");
+                    } else {
+                        $dependencies[] = $this->get($c->getName());
+                    }
+                }
+            }
+        }
+
+        $this->_reflections[$class] = $reflection;
+        $this->_dependencies[$class] = $dependencies;
+
+        return [$reflection, $dependencies];
     }
 
     protected function mergeParams($class, $params)
