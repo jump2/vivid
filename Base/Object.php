@@ -10,6 +10,9 @@ class Object
 {
     public function __construct($config = [])
     {
+        foreach ($config as $name => $value) {
+            $this->$name = $value;
+        }
         $this->init();
     }
 

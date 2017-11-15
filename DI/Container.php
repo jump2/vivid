@@ -3,9 +3,9 @@
 namespace Vivid\DI;
 
 use Vivid\Base\Object;
-
 use Vivid\Base\Exception\InvalidConfigException;
 use Vivid\DI\Exception\NotInstantiableException;
+use ReflectionClass;
 
 class Container extends Object
 {
@@ -104,8 +104,10 @@ class Container extends Object
             return ['class' => $definition];
         } elseif(is_callable($definition, true) || is_object($definition)) {
             return $definition;
-        } elseif(is_array($definition) && !isset($definition['class'])) {
-            $definition['class'] = $class;
+        } elseif(is_array($definition)) {
+            if(!isset($definition['class'])) {
+                $definition['class'] = $class;
+            }
             return $definition;
         } else {
             throw new InvalidConfigException("Unsupported definition type for \"$class\": " . gettype($definition));
