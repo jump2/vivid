@@ -2,3 +2,7 @@
 
 namespace Vivid;
 
+class Vivid
+{
+
+}

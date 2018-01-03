@@ -16,6 +16,8 @@ class Server extends Object
         'worker_num' => 1,
         'backlog' => 128,
         'max_request' => 50,
+//        'daemonize' => 1,
+//        'log_file' => '/data/logs/swooles.log'
     ];
 
     public function __construct(array $config = [])
